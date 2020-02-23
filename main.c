@@ -3,130 +3,103 @@
 
 #include <complex.h>
 
+#undef complex
+typedef double _Complex complex;
 
-typedef struct MatrixI{
+typedef enum Eltype {INT, COMPLEX} Eltype;
+
+typedef struct Matrix{
+	Eltype eltype;
 	int size;
 
-	int **values;
-} MatrixI;
-
-typedef struct MatrixC{
-	int size;
-
-	float complex **values;
-} MatrixC;
+	void **values;
+} Matrix;
 
 
 
-MatrixI createMatrixI(int size){
-	MatrixI matrix;
+Matrix createMatrix(Eltype eltype, int size){
+	Matrix matrix;
 
+	matrix.eltype = eltype;
 	matrix.size = size;
-	matrix.values = calloc(size, sizeof(typeof(*matrix.values)));
 
-	for(int i = 0; i < size; i++) matrix.values[i] = calloc(size, sizeof(typeof(**matrix.values)));
+	int typesize;
+	switch(eltype){
+		case INT:
+			typesize = sizeof(int);
+			break;
+		case COMPLEX:
+			typesize = sizeof(complex);
+			break;
+		default:
+			break;
+	}
+	matrix.values = calloc(size, sizeof(void*));
+
+	for(int i = 0; i < size; i++) matrix.values[i] = calloc(size, typesize);
 
 	return matrix;
 }
 
-MatrixC createMatrixC(int size){
-	MatrixC matrix;
-
-	matrix.size = size;
-	matrix.values = calloc(size, sizeof(typeof(*matrix.values)));
-
-	for(int i = 0; i < size; i++) matrix.values[i] = calloc(size, sizeof(typeof(**matrix.values)));
-
-	return matrix;
-}
 
 
-
-MatrixI addI(MatrixI m1, MatrixI m2){
-	if (m1.size != m2.size) return;
+Matrix add(Matrix m1, Matrix m2){
+	if (m1.eltype != m2.eltype || m1.size != m2.size) return;
 
 	int size = m1.size;
-	MatrixI result = createMatrixI(size);
+	Matrix result = createMatrix(m1.eltype, size);
 
 	for(int i = 0; i < size; i++) for(int j = 0; j < size; j++){
-		result.values[i][j] = m1.values[i][j] + m2.values[i][j];
-	}
-
-	return result;
-}
-
-MatrixC addC(MatrixC m1, MatrixC m2){
-	if (m1.size != m2.size) return;
-
-	int size = m1.size;
-	MatrixC result = createMatrixC(size);
-
-	for(int i = 0; i < size; i++) for(int j = 0; j < size; j++){
-		result.values[i][j] = m1.values[i][j] + m2.values[i][j];
-	}
-
-	return result;
-}
-
-
-
-MatrixI scalMultiplyI(MatrixI m, float num){
-	int size = m.size;
-	MatrixI result = createMatrixI(size);
-
-	for(int i = 0; i < size; i++) for(int j = 0; j < size; j++){
-		result.values[i][j] = m.values[i][j] * num;
-	}
-
-	return result;
-}
-
-MatrixC scalMultiplyC(MatrixC m, float num){
-	int size = m.size;
-	MatrixC result = createMatrixC(size);
-
-	for(int i = 0; i < size; i++) for(int j = 0; j < size; j++){
-		result.values[i][j] = m.values[i][j] * num;
-	}
-
-	return result;
-}
-
-
-
-MatrixI multiplyI(MatrixI m1, MatrixI m2){
-	if (m1.size != m2.size) return;
-
-	int size = m1.size;
-	MatrixI result = createMatrixI(size);
-
-	for(int i = 0; i < size; i++) for(int j = 0; j < size; j++){
-
-		int sum = 0;
-		for(int k = 0; k < size; k++){
-			sum += m1.values[i][k] * m2.values[k][j];
+		if(m1.eltype == INT)
+			((int**)result.values)[i][j] = ((int**)m1.values)[i][j] + ((int**)m2.values)[i][j];
+		else if(m1.eltype == COMPLEX){
+			((complex**)result.values)[i][j] = ((complex**)m1.values)[i][j] + ((complex**)m2.values)[i][j];
 		}
-
-		result.values[i][j] = sum;
 	}
 
 	return result;
 }
 
-MatrixC multiplyC(MatrixC m1, MatrixC m2){
+
+Matrix scalMultiply(Matrix m, float num){
+	int size = m.size;
+	Matrix result = createMatrix(m.eltype, size);
+
+	for(int i = 0; i < size; i++) for(int j = 0; j < size; j++){
+		if(m.eltype == INT)
+			((int**)result.values)[i][j] = ((int**)m.values)[i][j] * num;
+		if(m.eltype == COMPLEX)
+			((complex**)result.values)[i][j] = ((complex**)m.values)[i][j] * num;
+	}
+
+	return result;
+}
+
+
+
+Matrix multiply(Matrix m1, Matrix m2){
 	if (m1.size != m2.size) return;
 
 	int size = m1.size;
-	MatrixC result = createMatrixC(size);
+	Matrix result = createMatrix(m1.eltype, size);
 
 	for(int i = 0; i < size; i++) for(int j = 0; j < size; j++){
+		if(m1.eltype == INT){
+			int sum = 0;
+			for(int k = 0; k < size; k++){
+				sum += ((int**)m1.values)[i][k] * ((int**)m2.values)[k][j];
+			}
 
-		float complex sum = 0;
-		for(int k = 0; k < size; k++){
-			sum += m1.values[i][k] * m2.values[k][j];
+			((int**)result.values)[i][j] = sum;
 		}
+		else if(m1.eltype == COMPLEX){
+			complex sum = 0;
+			for(int k = 0; k < size; k++){
+				sum += ((complex**)m1.values)[i][k] * ((complex**)m2.values)[k][j];
+			}
 
-		result.values[i][j] = sum;
+			((complex**)result.values)[i][j] = sum;
+		}
 	}
 
 	return result;
