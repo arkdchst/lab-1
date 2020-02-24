@@ -42,6 +42,13 @@ Matrix createMatrix(Eltype eltype, int size){
 }
 
 
+void destroyMatrix(Matrix matrix){
+	if(matrix.size == 0) return;
+
+	for(int i = 0; i < matrix.size; i++) free(matrix.values[i]);
+	free(matrix.values);
+}
+
 
 Matrix add(Matrix m1, Matrix m2){
 	if (m1.eltype != m2.eltype || m1.size != m2.size) exit(1);
@@ -109,17 +116,17 @@ Matrix multiply(Matrix m1, Matrix m2){
 
 
 
-void printAnsMatrix(Matrix m){
+void printAnsMatrix(Matrix matrix){
 	printf("%s\n", "answer:");
-	if(m.eltype == INT)
-		for(int i = 0; i < m.size; i++){ for(int j = 0; j < m.size; j++){
-			printf("%d ", ((int**)m.values)[i][j]);
+	if(matrix.eltype == INT)
+		for(int i = 0; i < matrix.size; i++){ for(int j = 0; j < matrix.size; j++){
+			printf("%d ", ((int**)matrix.values)[i][j]);
 		}
 		printf("\n");
 	}
-	else if(m.eltype == COMPLEX)
-		for(int i = 0; i < m.size; i++){ for(int j = 0; j < m.size; j++){
-			printf("%g+%gi ", creal(((complex**)m.values)[i][j]), cimag(((complex**)m.values)[i][j]));
+	else if(matrix.eltype == COMPLEX)
+		for(int i = 0; i < matrix.size; i++){ for(int j = 0; j < matrix.size; j++){
+			printf("%g+%gi ", creal(((complex**)matrix.values)[i][j]), cimag(((complex**)matrix.values)[i][j]));
 		}
 		printf("\n");
 	}
@@ -128,7 +135,7 @@ void printAnsMatrix(Matrix m){
 
 
 Matrix scanMatrix(){
-	Matrix m;
+	Matrix matrix;
 	printf("%s\n", "type of matrix:\n1. int\n2. complex\n");
 
 	int type;
@@ -143,13 +150,13 @@ Matrix scanMatrix(){
 	if		(type == 1) eltype = INT;
 	else if	(type == 2) eltype = COMPLEX;
 
-	m = createMatrix(eltype, size);
+	matrix = createMatrix(eltype, size);
 
 	if(eltype == INT){
 		printf("%s\n", "elements of matrix:");
 
 		for(int i = 0; i < size; i++) for(int j = 0; j < size; j++){
-			scanf("%d", &(((int**)m.values)[i][j]));
+			scanf("%d", &(((int**)matrix.values)[i][j]));
 		}
 		printf("\n");
 	}
@@ -162,7 +169,7 @@ Matrix scanMatrix(){
 			float real;
 			scanf("%f", &real);
 
-			((complex**)m.values)[i][j] += real;
+			((complex**)matrix.values)[i][j] += real;
 		}
 		printf("\n");
 		printf("%s\n", "imaginary parts of elements of matrix:");
@@ -171,21 +178,22 @@ Matrix scanMatrix(){
 			float imag;
 			scanf("%f", &imag);
 
-			((complex**)m.values)[i][j] += imag * I;
+			((complex**)matrix.values)[i][j] += imag * I;
 		}
 		printf("\n");
 	}
-	return m;
+	return matrix;
 }
 
 
 void interface(){
-	Matrix a;
-	Matrix b;
+	Matrix a; a.size = 0;
+	Matrix b; b.size = 0;
 	float n;
 
-	Matrix r;
+	Matrix r; r.size = 0;
 	while(1){
+		destroyMatrix(r);
 		printf("%s\n",
 			"1. set matrix A\n"
 			"2. set matrix B\n"
@@ -200,9 +208,11 @@ void interface(){
 		scanf("%d", &choice); printf("\n");
 		switch(choice){
 			case 1:
+				destroyMatrix(a);
 				a = scanMatrix();
 				break;
 			case 2:
+				destroyMatrix(b);
 				b = scanMatrix();
 				break;
 			case 3:
