@@ -4,13 +4,13 @@ for i in tests/*.test; do
 	i=${i#tests/}
 	i=${i%.test}
 
-	echo "TEST $i"
+	echo "test $i"
 
-	cat tests/$i.test | ./out | pcregrep -M "answer:\n([\d ]*\n)*" | pcregrep "^\d" > ans
+	cat tests/$i.test | ./out | pcregrep -M "answer:\n([\d .i+-]*\n)*" | pcregrep "^[\d .i+-]" > ans
 
 	status="${PIPESTATUS[1]}"
 	if [[ "$status" != "0" ]]; then
-		echo "test NOT passed - exit status "$status
+		echo "test $i NOT passed - exit status "$status
 	else
 
 		echo "answer:"; cat ans
@@ -18,12 +18,11 @@ for i in tests/*.test; do
 
 
 		if [[ "$(cat ans)" == "$(cat tests/$i.ans)" ]]; then
-			echo "test passed"
+			echo "test $i passed"
 		else
-			echo "test NOT passed"
+			echo "test $i NOT passed"
 		fi
 	fi
 
-	echo "END OF TEST $i"
 	echo -en "\n\n"
 done

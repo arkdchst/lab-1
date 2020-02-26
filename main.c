@@ -126,7 +126,7 @@ void printAnsMatrix(Matrix matrix){
 	}
 	else if(matrix.eltype == COMPLEX)
 		for(int i = 0; i < matrix.size; i++){ for(int j = 0; j < matrix.size; j++){
-			printf("%g+%gi ", creal(((complex**)matrix.values)[i][j]), cimag(((complex**)matrix.values)[i][j]));
+			printf("%g%+gi ", creal(((complex**)matrix.values)[i][j]), cimag(((complex**)matrix.values)[i][j]));
 		}
 		printf("\n");
 	}
@@ -163,8 +163,6 @@ Matrix scanMatrix(){
 
 	else if(eltype == COMPLEX){
 		printf("%s\n", "real parts of elements of matrix:");
-
-		//real part
 		for(int i = 0; i < size; i++) for(int j = 0; j < size; j++){
 			float real;
 			scanf("%f", &real);
@@ -172,8 +170,8 @@ Matrix scanMatrix(){
 			((complex**)matrix.values)[i][j] += real;
 		}
 		printf("\n");
+
 		printf("%s\n", "imaginary parts of elements of matrix:");
-		//imag part
 		for(int i = 0; i < size; i++) for(int j = 0; j < size; j++){
 			float imag;
 			scanf("%f", &imag);
@@ -191,9 +189,7 @@ void interface(){
 	Matrix b; b.size = 0;
 	float n;
 
-	Matrix r; r.size = 0;
 	while(1){
-		destroyMatrix(r);
 		printf("%s\n",
 			"1. set matrix A\n"
 			"2. set matrix B\n"
@@ -203,6 +199,8 @@ void interface(){
 			"6. get n*A\n"
 			"7. exit\n"
 		);
+
+		Matrix r; r.size = 0;
 
 		int choice;
 		scanf("%d", &choice); printf("\n");
@@ -216,6 +214,7 @@ void interface(){
 				b = scanMatrix();
 				break;
 			case 3:
+				printf("%s\n", "number n:");
 				scanf("%f", &n); printf("\n");
 				break;
 			case 4:
@@ -236,6 +235,9 @@ void interface(){
 				exit(1);
 				break;
 		}
+
+		destroyMatrix(r);
+
 	}
 }
 
