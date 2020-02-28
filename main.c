@@ -47,6 +47,8 @@ void destroyMatrix(Matrix matrix){
 
 	for(int i = 0; i < matrix.size; i++) free(matrix.values[i]);
 	free(matrix.values);
+
+	matrix.size = 0;
 }
 
 
