@@ -53,7 +53,7 @@ void destroyMatrix(Matrix matrix){
 
 
 Matrix add(Matrix m1, Matrix m2){
-	if (m1.eltype != m2.eltype || m1.size != m2.size) exit(1);
+	if (m1.eltype != m2.eltype || m1.size != m2.size) {printf("%d", m2.eltype); exit(1);}
 
 	int size = m1.size;
 	Matrix result = createMatrix(m1.eltype, size);
@@ -187,8 +187,8 @@ Matrix scanMatrix(){
 
 
 void interface(){
-	Matrix a; a.size = 0;
-	Matrix b; b.size = 0;
+	Matrix a = createMatrix(INT, 0);
+	Matrix b = createMatrix(INT, 0);
 	float n;
 
 	while(1){
