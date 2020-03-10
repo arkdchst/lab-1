@@ -42,13 +42,13 @@ Matrix createMatrix(Eltype eltype, int size){
 }
 
 
-void destroyMatrix(Matrix matrix){
-	if(matrix.size == 0) return;
+void destroyMatrix(Matrix* matrix){
+	if(matrix->size == 0) return;
 
-	for(int i = 0; i < matrix.size; i++) free(matrix.values[i]);
-	free(matrix.values);
+	for(int i = 0; i < matrix->size; i++) free(matrix->values[i]);
+	free(matrix->values);
 
-	matrix.size = 0;
+	matrix->size = 0;
 }
 
 
@@ -208,11 +208,11 @@ void interface(){
 		scanf("%d", &choice); printf("\n");
 		switch(choice){
 			case 1:
-				destroyMatrix(a);
+				destroyMatrix(&a);
 				a = scanMatrix();
 				break;
 			case 2:
-				destroyMatrix(b);
+				destroyMatrix(&b);
 				b = scanMatrix();
 				break;
 			case 3:
@@ -238,7 +238,7 @@ void interface(){
 				break;
 		}
 
-		destroyMatrix(r);
+		destroyMatrix(&r);
 
 	}
 }
